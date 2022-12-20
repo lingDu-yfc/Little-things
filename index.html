@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>个人养老金计算器</title>
     <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
     <script src="//unpkg.com/vue@3"></script>
     <script src="//unpkg.com/element-plus"></script>
     <style>
         #app {
-            width: 500px;
+            width: 80%;
+            max-width: 500px;
             margin: 15vh auto 0;
             text-align: center;
             background: rgb(26 170 237 / 10%);
@@ -56,24 +57,24 @@
         </el-form>
         <el-button type="primary" style="width: 100%;margin: 30px 0 ;" size="large"
             @click="handleCompute">计算</el-button>
-        <el-dialog v-model="dialogTableVisible" title="计算结果" style="text-align: left;" width="500px">
+        <el-dialog v-model="dialogTableVisible" title="计算结果" style="text-align: left;" width="400px">
             <el-row>
-                <el-col :span="8" style="margin-bottom: 30px;">
+                <el-col :span="12" style="margin-bottom: 30px;">
                     预计待缴：{{result.pending}}年
                 </el-col>
-                <el-col :span="8" style="margin-bottom: 30px;">
+                <el-col :span="12" style="margin-bottom: 30px;">
                     累计本金：{{(result.deposit/10000).toFixed(2)}}万
                 </el-col>
-                <el-col :span="8" style="margin-bottom: 30px;">
+                <el-col :span="12" style="margin-bottom: 30px;">
                     获得本息：{{(result.income/10000).toFixed(2)}}万
                 </el-col>
-                <el-col :span="8" style="margin-bottom: 30px;">
+                <el-col :span="12" style="margin-bottom: 30px;">
                     累计利率：{{result.rate}}
                 </el-col>
-                <el-col :span="8" style="margin-bottom: 30px;">
+                <el-col :span="12" style="margin-bottom: 30px;">
                     累计避税：{{(result.avoidTaxes/10000).toFixed(2)}}万
                 </el-col>
-                <el-col :span="8" style="margin-bottom: 30px;">
+                <el-col :span="12" style="margin-bottom: 30px;">
                     累计总利率：{{result.totalRate}}
                 </el-col>
             </el-row>
