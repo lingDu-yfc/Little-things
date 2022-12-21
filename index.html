@@ -77,10 +77,11 @@
                 <el-col :span="12" style="margin-bottom: 30px;">
                     累计总利率：{{result.totalRate}}
                 </el-col>
-                <el-col :span="24" style="margin-bottom: 30px;">
+                <!-- <el-col :span="24" style="margin-bottom: 30px;">
                     平均年利率：{{result.averageRate}}
-                </el-col>
+                </el-col> -->
             </el-row>
+            <p style="text-align: center;color: #aedbfb;margin-top: 100px;">以上计算结果为四舍五入</p>
         </div>
     </div>
     <script>
@@ -111,17 +112,20 @@
                             const { year, taxCredit, rate, sex } = info.value
                             result.income = 0
                             result.pending = sex - year
-                            result.deposit = result.pending * 12000
+                            result.deposit = 0
                             result.avoidTaxes = result.pending * taxCredit
+                            const _rate = 1 + rate / 100
                             for (let i = 0; i < result.pending; i++) {
-                                result.income += result.income * rate / 100 + 12000
+                                // debugger
+                                result.income += 12000
+                                result.income *= _rate
+                                result.deposit += 12000
                             }
                             result.income = Number(result.income.toFixed(2))
-                            result.rate = (result.income / result.deposit * 100).toFixed(2) + '%'
-                            result.totalRate = ((result.avoidTaxes + result.income) / result.deposit * 100).toFixed(2) + '%'
-                            result.averageRate = ((result.avoidTaxes + result.income) / result.deposit * 100 / result.pending).toFixed(2) + '%'
+                            result.rate = (result.income / result.deposit * 100 - 100).toFixed(2) + '%'
+                            result.totalRate = ((result.avoidTaxes + result.income) / result.deposit * 100 - 100).toFixed(2) + '%'
+                            // result.averageRate = (((result.avoidTaxes + result.income) / result.deposit * 100 - 100) / result.pending).toFixed(2) + '%'
                             // num += taxCredit * year
-                            console.log(result)
                             dialogTableVisible.value = true
                         }
                     })
