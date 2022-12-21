@@ -11,34 +11,34 @@
     <script src="//unpkg.com/element-plus"></script>
     <style>
         #app {
-            width: 80%;
             max-width: 500px;
-            margin: 15vh auto 0;
+            margin: 0 auto;
+            min-height: 100vh;
             text-align: center;
             background: rgb(26 170 237 / 10%);
-            padding: 20px 50px;
+            padding: 20px;
             border-radius: 5px;
             box-sizing: border-box;
         }
     </style>
 </head>
 
-<body>
+<body style="margin: 0;">
     <div id="app">
         <h1 style="text-align: center;margin-bottom: 70px;">{{ message }}</h1>
-        <el-form :model="form" label-width="70px">
-            <el-form-item label="年龄：">
+        <el-form :model="info" label-width="80px" :rules="rules" ref="formEl">
+            <el-form-item label="年龄：" prop="year">
                 <el-input v-model="info.year" placeholder="请输入年龄" size="large">
                 </el-input>
             </el-form-item>
-            <el-form-item label="性别：">
+            <el-form-item label="性别：" prop="sex">
                 <el-select style="width: 100%;" v-model="info.sex" placeholder="请选择性别" size="large">
                     <el-option label="男-60退休" value="60"></el-option>
                     <el-option label="女-50退休" value="50"></el-option>
                     <el-option label="女-55退休" value="55"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="年薪：">
+            <el-form-item label="年薪：" prop="taxCredit">
                 <el-select style="width: 100%;" placeholder="请选择年薪范围" v-model="info.taxCredit" size="large">
                     <el-option label="0-9万6" value="0"></el-option>
                     <el-option label="9万6-20.4万" value="840"></el-option>
@@ -49,15 +49,15 @@
                     <el-option label="大于102万" value="5040"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="年利率：">
+            <el-form-item label="年利率：" prop="rate">
                 <el-input v-model="info.rate">
                     <template #append>%</template>
                 </el-input>
             </el-form-item>
         </el-form>
         <el-button type="primary" style="width: 100%;margin: 30px 0 ;" size="large"
-            @click="handleCompute">计算</el-button>
-        <el-dialog v-model="dialogTableVisible" title="计算结果" style="text-align: left;" width="400px">
+            @click="handleCompute(formEl)">计算</el-button>
+        <div v-show="dialogTableVisible">
             <el-row>
                 <el-col :span="12" style="margin-bottom: 30px;">
                     预计待缴：{{result.pending}}年
@@ -77,8 +77,11 @@
                 <el-col :span="12" style="margin-bottom: 30px;">
                     累计总利率：{{result.totalRate}}
                 </el-col>
+                <el-col :span="24" style="margin-bottom: 30px;">
+                    平均年利率：{{result.averageRate}}
+                </el-col>
             </el-row>
-        </el-dialog>
+        </div>
     </div>
     <script>
         const { createApp, ref, reactive } = Vue
@@ -98,30 +101,69 @@
                     income: 0,
                     rate: 0,
                     avoidTaxes: 0,
-                    totalRate: 0
+                    totalRate: 0,
+                    averageRate: 0
                 })
-                const handleCompute = () => {
-                    const { year, taxCredit, rate, sex } = info.value
-                    result.income = 0
-                    result.pending = sex - year
-                    result.deposit = result.pending * 12000
-                    result.avoidTaxes = result.pending * taxCredit
-
-                    for (let i = 0; i < result.pending; i++) {
-                        result.income += result.income * rate / 100 + 12000
-                    }
-                    result.income = Number(result.income.toFixed(2))
-                    result.rate = (result.income / result.deposit * 100).toFixed(2) + '%'
-                    result.totalRate = ((result.avoidTaxes + result.income) / result.deposit * 100).toFixed(2) + '%'
-                    // num += taxCredit * year
-                    console.log(result)
-                    dialogTableVisible.value = true
+                const formEl = ref()
+                const handleCompute = (formEl) => {
+                    formEl.validate((valid, fields) => {
+                        if (valid) {
+                            const { year, taxCredit, rate, sex } = info.value
+                            result.income = 0
+                            result.pending = sex - year
+                            result.deposit = result.pending * 12000
+                            result.avoidTaxes = result.pending * taxCredit
+                            for (let i = 0; i < result.pending; i++) {
+                                result.income += result.income * rate / 100 + 12000
+                            }
+                            result.income = Number(result.income.toFixed(2))
+                            result.rate = (result.income / result.deposit * 100).toFixed(2) + '%'
+                            result.totalRate = ((result.avoidTaxes + result.income) / result.deposit * 100).toFixed(2) + '%'
+                            result.averageRate = ((result.avoidTaxes + result.income) / result.deposit * 100 / result.pending).toFixed(2) + '%'
+                            // num += taxCredit * year
+                            console.log(result)
+                            dialogTableVisible.value = true
+                        }
+                    })
                 }
+                const rules = reactive({
+                    year: [
+                        {
+                            required: true,
+                            message: '请输入年龄',
+                            trigger: 'blur',
+                        },
+                    ],
+                    sex: [
+                        {
+                            required: true,
+                            message: '请选择性别-退休年龄',
+                            trigger: 'change',
+                        }
+                    ],
+                    taxCredit: [
+                        {
+                            required: true,
+                            message: '请选择年薪范围',
+                            trigger: 'change',
+                        }
+                    ],
+                    rate: [
+                        {
+                            required: true,
+                            message: '请输入产品年利率',
+                            trigger: 'change',
+                        }
+                    ]
+
+                })
                 return {
                     message,
                     info,
                     dialogTableVisible,
                     result,
+                    rules,
+                    formEl,
                     handleCompute
                 }
             },
